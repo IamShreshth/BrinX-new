@@ -96,7 +96,7 @@ BrinX-new/
 ### 1 · Clone the repository
 
 ```bash
-git clone https://github.com/your-username/BrinX-new.git
+git clone https://github.com/youngoat911/BrinX-new.git
 cd BrinX-new
 ```
 
