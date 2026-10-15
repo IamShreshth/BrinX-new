@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 const { initializeTransporter } = require("./services/emailService");
@@ -12,6 +13,11 @@ const notificationRoutes = require("./routes/notifications");
 const userRoutes = require("./routes/users");
 
 const app = express();
+
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 app.use(cors({
   origin: function (origin, callback) {
