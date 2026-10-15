@@ -32,9 +32,9 @@ BrinX is a peer-to-peer task exchange platform for IITJ students. Post tasks you
 | **Frontend** | HTML5, Vanilla CSS (custom design system), Vanilla JS |
 | **Animations** | Anime.js, CSS keyframes |
 | **Fonts** | Syne, Space Grotesk, Inter (Google Fonts) |
-| **Backend** | Node.js, Express.js |
+| **Backend** | Node.js, Express.js, CORS |
 | **Database** | MongoDB (local or Atlas), Mongoose ODM |
-| **Auth** | JWT (jsonwebtoken), bcryptjs |
+| **Auth** | JWT (jsonwebtoken), bcryptjs, google-auth-library |
 | **File Upload** | Multer |
 | **Email** | Nodemailer (Ethereal for dev, Gmail for prod) |
 | **Validation** | express-validator |
@@ -50,22 +50,29 @@ BrinX-new/
 │   ├── middleware/
 │   │   └── auth.js              # JWT authentication middleware
 │   ├── models/
-│   │   └── User.js              # Mongoose User model
+│   │   ├── User.js              # Mongoose User model
+│   │   ├── Task.js              # Mongoose Task model
+│   │   └── Notification.js      # Mongoose Notification model
 │   ├── routes/
-│   │   ├── auth.js              # Signup, login, forgot/reset password
-│   │   ├── tasks.js             # Post, accept, complete, verify tasks
-│   │   └── notifications.js    # Notification feed & mark-as-read
+│   │   ├── auth.js              # Signup, login, Google OAuth, forgot/reset password
+│   │   ├── tasks.js             # Post, accept, bid, complete, verify, leaderboard
+│   │   ├── notifications.js     # Notification feed & mark-as-read
+│   │   └── users.js             # User preferences (get/update)
 │   ├── services/
 │   │   └── emailService.js      # Nodemailer (Ethereal / Gmail)
+│   ├── uploads/                 # Multer upload dir (git-ignored)
 │   └── server.js                # Express app entry point
 ├── frontend/
 │   ├── css/
 │   │   └── styles.css           # Full design system (tokens, glass, neu, bento)
 │   ├── js/
 │   │   ├── api.js               # API_BASE_URL + apiCall() helper
+│   │   ├── auth.js              # Login form submit handler
 │   │   ├── aurora.js            # Aurora parallax + ripple micro-interactions
 │   │   ├── animations.js        # Anime.js entrance & hover animations
-│   │   └── dashboard.js         # Dashboard stats + notification badge logic
+│   │   ├── dashboard.js         # Dashboard stats + notification badge logic
+│   │   ├── mobile-nav.js        # Mobile nav drawer toggle
+│   │   └── stars.js             # Starfield background generator
 │   ├── index.html               # High-converting Landing Page
 │   ├── login.html               # Login page with Google OAuth & Custom Email
 │   ├── signup.html              # Registration (IITJ roll number validation)
@@ -194,11 +201,16 @@ All API routes are prefixed with `/api`.
 | `GET` | `/tasks/my-posted-tasks` | Get tasks posted by me |
 | `GET` | `/tasks/my-accepted-tasks` | Get tasks accepted by me |
 | `POST` | `/tasks/accept-request/:id` | Accept an open task (evaluates skill quiz) |
+| `GET` | `/tasks/skill-quiz/:id` | Fetch the skill gatekeeping quiz for a task |
 | `POST` | `/tasks/bid/:id` | Place a bid on a task (Reverse Auction) |
 | `POST` | `/tasks/select-bid/:id` | Poster selects a winning bid |
 | `POST` | `/tasks/join-waitlist/:id` | Join waitlist for an accepted task |
+| `POST` | `/tasks/drop-task/:id` | Drop an accepted task |
 | `POST` | `/tasks/complete-task/:id` | Submit completion proof (multipart) |
+| `POST` | `/tasks/verify-task/:id` | Poster verifies completion & releases points |
 | `POST` | `/tasks/reward-status/:id` | Confirm or dispute reward receipt |
+| `DELETE` | `/tasks/delete-request/:id` | Delete an open task you posted |
+| `GET` | `/tasks/leaderboard` | Leaderboard with reputation decay |
 
 ### Notifications
 
@@ -207,6 +219,13 @@ All API routes are prefixed with `/api`.
 | `GET` | `/notifications` | Get all notifications |
 | `PATCH` | `/notifications/:id/read` | Mark one as read |
 | `PATCH` | `/notifications/mark-all-read` | Mark all as read |
+
+### Users
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/users/preferences` | Get my notification preferences |
+| `PUT` | `/users/preferences` | Update my notification preferences |
 
 ---
 
